@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Job Intelligence — find roles across 15,000 company boards</title>
+<meta name="description" content="Searches job boards from thousands of companies directly, ranks by how well they match you. No signup.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <h1>Job Intelligence</h1>
+    <p class="sub">
+      Searches company job boards directly — not a job board.
+      <span id="modeBadge" class="badge"></span>
+    </p>
+  </div>
+  <div class="corpus" id="corpusStats"></div>
+</header>
+
+<div class="layout">
+
+  <!-- ─────────── config ─────────── -->
+  <aside class="panel config">
+    <h2>What are you looking for?</h2>
+
+    <label class="field">
+      <span>Skills &amp; keywords <small>one per line — <code>term: weight</code></small></span>
+      <textarea id="keywords" rows="8" spellcheck="false">react native: 30
+react: 15
+typescript: 15
+node: 15
+frontend: 10
+mobile: 10</textarea>
+      <small>Higher weight = matters more. Matches in the job title count for more
+             than matches buried in the description.</small>
+    </label>
+
+    <label class="field">
+      <span>Exclude titles containing</span>
+      <textarea id="exclusions" rows="2" spellcheck="false">principal, director, vp, head of, cobol, clearance</textarea>
+    </label>
+
+    <label class="field checkline">
+      <input type="checkbox" id="remoteOnly">
+      <span>Remote only</span>
+    </label>
+
+    <label class="field">
+      <span>Posted within <em id="ageOut">45</em> days</span>
+      <input type="range" id="maxAge" min="3" max="90" value="45" step="1">
+    </label>
+
+    <label class="field">
+      <span>Minimum match <em id="minOut">15</em>%</span>
+      <input type="range" id="minScore" min="0" max="80" value="15" step="1">
+      <small>Scores are a percentage of everything your config could award.
+             Realistic cutoffs are 15&ndash;40 — not 80.</small>
+    </label>
+
+    <button id="search" class="primary">Search</button>
+    <button id="reset" class="ghost">Reset</button>
+
+    <p class="saved" id="savedNote">Settings are saved in this browser only. No account, nothing sent anywhere.</p>
+  </aside>
+
+  <!-- ─────────── results ─────────── -->
+  <main>
+
+    <div class="panel" id="progressPanel" hidden>
+      <div class="progress-head">
+        <strong id="stageLabel">Searching…</strong>
+        <span id="progressCount" class="mono"></span>
+      </div>
+      <div class="bar"><div id="bar"></div></div>
+    </div>
+
+    <div class="panel funnel" id="funnel" hidden>
+      <div class="stats" id="stats"></div>
+    </div>
+
+    <div class="panel" id="resultsPanel" hidden>
+      <div class="results-head">
+        <h2>Matches <span class="tag" id="resultCount"></span></h2>
+        <div class="viewline">
+          <label class="chk"><input type="checkbox" id="hideDismissed" checked> Hide dismissed</label>
+          <select id="sortBy">
+            <option value="score">Best match</option>
+            <option value="date">Newest</option>
+            <option value="company">Company</option>
+          </select>
+        </div>
+      </div>
+      <div id="results"></div>
+    </div>
+
+    <div class="panel empty" id="empty">
+      <h2>Search thousands of company job boards at once</h2>
+      <p>
+        Most companies post jobs through Greenhouse, Lever, or Ashby. Those boards are
+        public, but there's no way to search across them — you can only look up one
+        company at a time.
+      </p>
+      <p>This does the looking up for you, then ranks what it finds against your keywords.</p>
+      <ul class="pts">
+        <li><strong>No signup.</strong> Your settings stay in this browser.</li>
+        <li><strong>No tracking.</strong> Nothing about you is stored anywhere.</li>
+        <li><strong>Links straight to the source.</strong> You apply on the company's own site.</li>
+      </ul>
+      <p class="hint" id="emptyHint"></p>
+    </div>
+
+    <div class="panel saved-panel" id="savedPanel" hidden>
+      <h2>Saved <span class="tag" id="savedCount"></span></h2>
+      <div id="savedList"></div>
+    </div>
+
+  </main>
+</div>
+
+<footer>
+  <span>Job data comes from public company career-page APIs. Always apply on the company's own site.</span>
+</footer>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

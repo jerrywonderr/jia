@@ -1,0 +1,21 @@
+{
+  "name": "job-intelligence-agent",
+  "version": "1.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Registry-shaped job discovery pipeline. No server, no signup.",
+  "scripts": {
+    "seed": "tsx scripts/seed.ts",
+    "sweep": "tsx scripts/sweep.ts",
+    "sweep:dry": "tsx scripts/sweep.ts --dry-run --limit 25",
+    "web": "npx --yes serve web -l 8080"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "@types/node": "^22.0.0"
+  }
+}

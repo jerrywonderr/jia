@@ -1,0 +1,56 @@
+# ─── secrets ────────────────────────────────────────────────────────────────
+# .env holds SUPABASE_SERVICE_KEY, which bypasses row-level security.
+# Never commit it. .env.example is the template and IS tracked.
+.env
+.env.*
+!.env.example
+
+# ─── dependencies ───────────────────────────────────────────────────────────
+node_modules/
+.npm/
+.pnpm-store/
+
+# NOTE: package-lock.json is intentionally NOT ignored.
+# The GitHub Actions workflow runs `npm ci`, which fails without it.
+
+# ─── build output ───────────────────────────────────────────────────────────
+dist/
+build/
+*.tsbuildinfo
+
+# ─── logs & scratch ─────────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+.cache/
+tmp/
+*.local.json
+
+# Local data dumps from experimenting with the registry
+*.sqlite
+*.db
+greenhouse.json
+lever.json
+ashby.json
+sample.txt
+
+# ─── supabase cli (if you use it later) ─────────────────────────────────────
+.supabase/
+supabase/.temp/
+supabase/.branches/
+
+# ─── editors & OS ───────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+*.swp
+*~
+
+# ─── deliberately tracked ───────────────────────────────────────────────────
+# verify.mjs (test/ and v1.1/web/) — headless test harnesses. Small, useful,
+#   and they document how the measurements in the docs were produced. Keep them.
+# web/config.js — contains only the Supabase URL and the anon key, which are
+#   public by design; RLS limits the anon key to reading the corpus.
+# supabase/schema.sql — the schema is the source of truth. Commit it.

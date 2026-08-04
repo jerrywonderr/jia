@@ -1,0 +1,50 @@
+name: sweep
+
+# GitHub only discovers workflows in .github/workflows/ at the REPOSITORY ROOT.
+# The job itself runs inside v1.1/ via `working-directory` below.
+
+on:
+  schedule:
+    # Every 6 hours. GitHub cron is best-effort — expect 15-30 min drift at peak.
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      tier:
+        description: 'Only sweep this tier (blank = whatever is due)'
+        required: false
+      limit:
+        description: 'Cap number of companies (blank = no cap)'
+        required: false
+
+concurrency:
+  group: sweep
+  cancel-in-progress: false
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: v1.1
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: v1.1/package-lock.json
+
+      - run: npm ci
+
+      - name: Run sweep
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          ARGS=""
+          if [ -n "${{ inputs.tier }}"  ]; then ARGS="$ARGS --tier ${{ inputs.tier }}"; fi
+          if [ -n "${{ inputs.limit }}" ]; then ARGS="$ARGS --limit ${{ inputs.limit }}"; fi
+          npm run sweep -- --concurrency 12 $ARGS

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Job Intelligence Agent — end-to-end test</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Job Intelligence Agent <span class="tag">end-to-end test</span></h1>
+    <p class="sub">Registry &rarr; fetch &rarr; normalize &rarr; dedupe &rarr; filter &rarr; score &rarr; display.
+       Runs entirely in the browser. No server, no API keys.</p>
+  </div>
+  <button id="run" class="run-btn">Run pipeline</button>
+</header>
+
+<div class="layout">
+
+  <!-- ─────────── config sidebar ─────────── -->
+  <aside class="panel config">
+    <h2>Config</h2>
+
+    <label class="field">
+      <span>Sources</span>
+      <div class="checks">
+        <label><input type="checkbox" class="src" value="greenhouse" checked> Greenhouse</label>
+        <label><input type="checkbox" class="src" value="lever" checked> Lever</label>
+        <label><input type="checkbox" class="src" value="ashby" checked> Ashby</label>
+      </div>
+    </label>
+
+    <label class="field">
+      <span>Companies to sample <em id="sampleOut">24</em></span>
+      <input type="range" id="sampleSize" min="5" max="150" value="24" step="1">
+      <small>Random draw from the registry. Keep it modest — be a polite citizen.</small>
+    </label>
+
+    <label class="field">
+      <span>Concurrency <em id="concOut">6</em></span>
+      <input type="range" id="concurrency" min="1" max="16" value="6" step="1">
+    </label>
+
+    <label class="field checkline">
+      <input type="checkbox" id="withDesc" checked>
+      <span>Fetch full descriptions</span>
+      <small>Greenhouse needs <code>content=true</code> for these (bigger payload).
+             Lever &amp; Ashby include them free.</small>
+    </label>
+
+    <label class="field">
+      <span>Always include (comma-separated tokens)</span>
+      <input type="text" id="favourites" placeholder="stripe, ramp, leverdemo">
+      <small>Your tier-0 watchlist. Fetched in addition to the random sample.</small>
+    </label>
+
+    <hr>
+
+    <label class="field">
+      <span>Scoring keywords <small>term : weight</small></span>
+      <textarea id="keywords" rows="9">react native: 30
+react: 15
+typescript: 15
+node: 15
+nestjs: 15
+javascript: 10
+frontend: 10
+mobile: 10</textarea>
+    </label>
+
+    <label class="field">
+      <span>Bonuses</span>
+      <div class="checks">
+        <label><input type="checkbox" id="bonusRemote" checked> Remote +20</label>
+        <label><input type="checkbox" id="bonusSalary" checked> Salary shown +10</label>
+        <label><input type="checkbox" id="bonusRecent" checked> Recently posted +10 (decays)</label>
+      </div>
+    </label>
+
+    <label class="field">
+      <span>Exclude if title contains</span>
+      <textarea id="exclusions" rows="3">principal, staff, director, vp, head of, c++, cobol, sap, clearance</textarea>
+    </label>
+
+    <label class="field">
+      <span>Minimum score <em id="minOut">15</em>%</span>
+      <input type="range" id="minScore" min="0" max="100" value="15" step="1">
+    </label>
+
+    <button id="reset" class="ghost-btn">Reset to defaults</button>
+  </aside>
+
+  <!-- ─────────── main ─────────── -->
+  <main>
+
+    <div class="panel" id="progressPanel" hidden>
+      <div class="progress-head">
+        <strong id="stageLabel">Starting…</strong>
+        <span id="progressCount" class="mono"></span>
+      </div>
+      <div class="bar"><div id="bar"></div></div>
+      <div id="log" class="log"></div>
+    </div>
+
+    <div class="funnel panel" id="funnel" hidden>
+      <h2>Pipeline funnel</h2>
+      <div class="stats" id="stats"></div>
+    </div>
+
+    <div class="panel" id="resultsPanel" hidden>
+      <div class="results-head">
+        <h2>Matches <span id="resultCount" class="tag"></span></h2>
+        <label class="sortline">
+          Sort
+          <select id="sortBy">
+            <option value="score">by score</option>
+            <option value="date">by date posted</option>
+            <option value="company">by company</option>
+          </select>
+        </label>
+      </div>
+      <div id="results"></div>
+    </div>
+
+    <div class="panel empty" id="empty">
+      <h2>Nothing run yet</h2>
+      <p>Press <strong>Run pipeline</strong>. It will:</p>
+      <ol>
+        <li>Download the public company registry (~15,900 tokens across three ATS platforms)</li>
+        <li>Draw a random sample and fetch each company's live jobs</li>
+        <li>Normalize the three different response shapes into one</li>
+        <li>Remove duplicates using a normalized company+title+location key</li>
+        <li>Drop excluded titles, score the rest, and rank them</li>
+      </ol>
+      <p class="note">Expect roughly half the sampled tokens to return 404 — those companies have
+         churned off the platform since the registry was built. That's the number worth watching.</p>
+    </div>
+
+  </main>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
