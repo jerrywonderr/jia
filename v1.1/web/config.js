@@ -11,8 +11,8 @@
    ========================================================================== */
 
 window.APP_CONFIG = {
-  SUPABASE_URL: '',       // e.g. 'https://abcdefgh.supabase.co'
-  SUPABASE_ANON_KEY: '',  // the "anon / public" key, NOT the service key
+  SUPABASE_URL: 'https://jsluwvbdwcuurkrsxwvv.supabase.co',       // e.g. 'https://abcdefgh.supabase.co'
+  SUPABASE_ANON_KEY: 'sb_publishable_R-o0PVDAvSRbp8m3yRBp1Q_BaiHQdWc',  // the "anon / public" key, NOT the service key
 
   // Live mode only: how many random companies to sample per search.
   LIVE_SAMPLE: 30,
