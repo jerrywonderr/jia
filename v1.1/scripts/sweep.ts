@@ -34,9 +34,17 @@ const LIMIT      = Number(opt('limit', '0')) || 0;
 const ONLY_TIER  = opt('tier') !== undefined ? Number(opt('tier')) : null;
 const CONCURRENCY = Number(opt('concurrency', '8'));
 
-/** Which tiers are due, given the hour. Tier 0 every run, 1 twice daily, 2 daily. */
+/**
+ * Which tiers are due, given the current hour.
+ *
+ * This keeps the sweep rate-limited and predictable:
+ * - tier 0 runs every sweep (watchlist)
+ * - tier 1 runs roughly twice a day
+ * - tier 2 runs once a day
+ */
 function tiersDue(): number[] {
   if (ONLY_TIER !== null) return [ONLY_TIER];
+
   const h = new Date().getUTCHours();
   const due = [0];
   if (h % 12 < 6) due.push(1);
@@ -117,27 +125,54 @@ async function main() {
 
         if (res.status === 'not-modified') {
           stats.notModified++;
-          companyUpdates.push({ id: c.id, last_fetched: now, status: 'live', fail_count: 0 });
+          companyUpdates.push({
+            id: c.id,
+            ats: c.ats,
+            token: c.token,
+            tier: c.tier,
+            last_fetched: now,
+            status: 'live',
+            fail_count: 0,
+          });
         } else if (res.status === 'ok') {
           const jobs = SOURCES[ats].parse(res.data, c.token).filter((j) => j.url && j.title);
           stats.live++; stats.jobs += jobs.length;
           for (const j of jobs) allJobs.push({ ...j, companyId: c.id });
           companyUpdates.push({
-            id: c.id, etag: res.etag ?? null, last_fetched: now, last_success: now,
-            status: 'live', fail_count: 0, job_count: jobs.length,
+            id: c.id,
+            ats: c.ats,
+            token: c.token,
+            tier: c.tier,
+            etag: res.etag ?? null,
+            last_fetched: now,
+            last_success: now,
+            status: 'live',
+            fail_count: 0,
+            job_count: jobs.length,
             name: jobs[0]?.company ?? c.token,
           });
         } else if (res.status === 'dead') {
           stats.dead++;
           const fails = c.fail_count + 1;
           companyUpdates.push({
-            id: c.id, last_fetched: now, fail_count: fails,
+            id: c.id,
+            ats: c.ats,
+            token: c.token,
+            tier: c.tier,
+            last_fetched: now,
+            fail_count: fails,
             status: fails >= 3 ? 'dead' : 'unknown',
           });
         } else {
           stats.error++;
           companyUpdates.push({
-            id: c.id, last_fetched: now, status: 'error', fail_count: c.fail_count + 1,
+            id: c.id,
+            ats: c.ats,
+            token: c.token,
+            tier: c.tier,
+            last_fetched: now,
+            status: 'error',
+            fail_count: c.fail_count + 1,
           });
         }
 
