@@ -54,3 +54,7 @@ Thumbs.db
 # web/config.js — contains only the Supabase URL and the anon key, which are
 #   public by design; RLS limits the anon key to reading the corpus.
 # supabase/schema.sql — the schema is the source of truth. Commit it.
+
+-------------------------------------------------------------------------------
+*.md
+*.pdf
